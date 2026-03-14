@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 import requests
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -51,6 +54,7 @@ def classify():
                 "temperature": 0,
             },
             timeout=30,
+            verify=False,
         )
         resp.raise_for_status()
         result = resp.json()
