@@ -4,9 +4,9 @@ import os
 
 app = Flask(__name__)
 
-LLAMA_URL = os.getenv("LLAMA_URL", "http://llama-cpp-server.llama-cpp.svc:8080")
+LLAMA_URL = os.getenv("LLAMA_URL", "http://llama-cpp-api.llama-cpp.svc.cluster.local:8080")
 
-SYSTEM_PROMPT = """You classify messages into exactly one category. Reply with ONLY the category code, nothing else.
+DEFAULT_PROMPT = """You classify messages into exactly one category. Reply with ONLY the category code, nothing else.
 
 Categories:
 - UI = Urgent AND Important: Needs immediate action, serious consequences if delayed. Examples: server outage, security breach, payment failure, system crash.
@@ -16,6 +16,8 @@ Categories:
 
 Reply with ONLY: UI, UN, NI, or NN
 /no_think"""
+
+SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT", DEFAULT_PROMPT).replace("\\n", "\n")
 
 LABELS = {
     "UI": "Urgent + Important",
