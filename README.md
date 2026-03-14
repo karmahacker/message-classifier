@@ -1,29 +1,33 @@
 # Message Classifier
 
-Lightweight message urgency/importance classifier powered by Qwen3-1.7B via llama.cpp.
+Lightweight message classifier for digital agency workflows, powered by Qwen3-1.7B via llama.cpp.
 
-Classifies messages into 4 categories using the [Eisenhower Matrix](https://en.wikipedia.org/wiki/Time_management#The_Eisenhower_Method):
+Classifies incoming messages from clients and contractors across 5 dimensions:
 
-| Code | Label | When |
-|------|-------|------|
-| **UI** | Urgent + Important | Needs immediate action, serious consequences if delayed |
-| **UN** | Urgent + Not Important | Time-sensitive but low impact |
-| **NI** | Not Urgent + Important | Matters but can wait hours/days |
-| **NN** | Not Urgent + Not Important | Low priority, no time pressure |
+| Field | Values |
+|-------|--------|
+| `importance` | `high` / `medium` / `low` |
+| `urgency` | `urgent` / `today` / `this_week` / `no_deadline` |
+| `category` | `seo` / `ppc` / `analytics` / `billing` / `access` / `reporting` / `contractor_update` / `approval` |
+| `requires_human` | `true` / `false` |
+| `recommended_owner` | `seo` / `ppc` / `account` / `finance` / `tech` / `owner` |
 
 ## Usage
 
 ```bash
 curl https://classifier.k8s.vrgo.dev/classify \
   -H "Content-Type: application/json" \
-  -d '{"text":"Server is down, all customers affected"}'
+  -d '{"text":"Реклама не крутится с утра, лидов нет вообще"}'
 ```
 
 Response:
 ```json
 {
-  "classification": "UI",
-  "label": "Urgent + Important"
+  "importance": "high",
+  "urgency": "urgent",
+  "category": "ppc",
+  "requires_human": true,
+  "recommended_owner": "ppc"
 }
 ```
 
@@ -34,15 +38,25 @@ Copy `.env.example` to `.env` and adjust:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `LLAMA_URL` | `http://llama-cpp-api.llama-cpp.svc.cluster.local:8080` | llama.cpp server URL |
-| `SYSTEM_PROMPT` | *(built-in classifier prompt)* | System prompt for classification. Use `\n` for newlines. |
+| `SYSTEM_PROMPT` | *(built-in classifier prompt)* | Override system prompt. Use `\n` for newlines. |
 
 ## Run locally
 
 ```bash
-pip install flask requests gunicorn
+pip install flask requests python-dotenv
 cp .env.example .env
 # Edit .env — set LLAMA_URL to your llama.cpp instance
 python app.py
+```
+
+## Testing
+
+Put one message per line in a file and run:
+
+```bash
+./test.sh                                        # test_messages.txt vs localhost:8000
+./test.sh my_messages.txt                        # custom file
+./test.sh my_messages.txt https://classifier.k8s.vrgo.dev  # custom file + API
 ```
 
 ## Docker
@@ -67,6 +81,6 @@ ArgoCD syncs automatically.
 
 ## Stack
 
-- **Runtime:** Python 3.12 + Flask + Gunicorn
+- **Runtime:** Python 3.11+ + Flask
 - **Model:** Qwen3-1.7B Q4_K_M (1GB, CPU inference)
 - **Infra:** Kubernetes, llama.cpp server, nginx ingress + TLS
