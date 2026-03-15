@@ -48,3 +48,16 @@ jobs:
             --body "Auto-deploy from ${{ github.event.repository.full_name }} PR #${{ github.event.pull_request.number }}" \
             --repo karmahacker/k8s-cluster
           gh pr merge "$BRANCH" --merge --admin --repo karmahacker/k8s-cluster
+
+      - name: Notify Telegram (deploy)
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            MSG="🚀 *${{ github.event.repository.name }}* deployed from PR #${{ github.event.pull_request.number }}"
+          else
+            MSG="❌ *${{ github.event.repository.name }}* deploy FAILED for PR #${{ github.event.pull_request.number }}"
+          fi
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode=Markdown \
+            -d text="$MSG"

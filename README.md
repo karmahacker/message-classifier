@@ -1,5 +1,12 @@
 # Message Classifier
 
+## CI/CD
+
+- **Tests:** Run on every PR to `main`
+- **Deploy:** On PR merge → build `PR-<N>` image → push to DO registry → GitOps PR on k8s-cluster → ArgoCD sync
+- **Notifications:** Test results and deploy status sent to Telegram
+
+
 Lightweight message urgency/importance classifier powered by Qwen3-1.7B via llama.cpp.
 
 Classifies messages into 4 categories using the [Eisenhower Matrix](https://en.wikipedia.org/wiki/Time_management#The_Eisenhower_Method):
