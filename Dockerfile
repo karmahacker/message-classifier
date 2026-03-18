@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 WORKDIR /app
-RUN pip install --no-cache-dir flask requests gunicorn
+RUN pip install --no-cache-dir flask requests gunicorn python-dotenv
 # Install kubectl for log collection
 RUN apt-get update && apt-get install -y curl && \
     curl -LO "https://dl.k8s.io/release/v1.31.0/bin/linux/amd64/kubectl" && \
